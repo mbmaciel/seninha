@@ -16,15 +16,30 @@ app.use(express.static(__dirname)); // Serve static frontend files from current 
 
 // Ensure the database directory exists (needed for Render persistent disk)
 const dbDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dbDir)) {
-    fs.mkdirSync(dbDir, { recursive: true });
-    console.log(`Diretório do banco criado: ${dbDir}`);
+console.log(`[DB] Caminho do banco: ${DB_PATH}`);
+console.log(`[DB] Diretório do banco: ${dbDir}`);
+
+try {
+    if (!fs.existsSync(dbDir)) {
+        fs.mkdirSync(dbDir, { recursive: true });
+        console.log(`[DB] Diretório criado: ${dbDir}`);
+    }
+    // Test write permissions
+    const testFile = path.join(dbDir, '.write_test');
+    fs.writeFileSync(testFile, 'test');
+    fs.unlinkSync(testFile);
+    console.log(`[DB] Permissão de escrita confirmada em: ${dbDir}`);
+} catch (fsErr) {
+    console.error(`[DB] ERRO DE SISTEMA DE ARQUIVOS: ${fsErr.message}`);
+    console.error(`[DB] Stack: ${fsErr.stack}`);
 }
 
 // Initialize Database
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
-        console.error('Erro ao conectar ao banco SQLite:', err);
+        console.error('Erro ao conectar ao banco SQLite:', err.message);
+        console.error('Código do erro:', err.code);
+        console.error('Stack:', err.stack);
     } else {
         console.log('Conectado ao banco de dados SQLite.');
         initDb();
