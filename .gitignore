@@ -1,0 +1,4 @@
+node_modules/
+seninha.db
+*.db
+.DS_Store
