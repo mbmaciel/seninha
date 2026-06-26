@@ -14,6 +14,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname)); // Serve static frontend files from current directory
 
+// Ensure the database directory exists (needed for Render persistent disk)
+const dbDir = path.dirname(DB_PATH);
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+    console.log(`Diretório do banco criado: ${dbDir}`);
+}
+
 // Initialize Database
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
